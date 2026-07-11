@@ -1,7 +1,8 @@
 import 'dotenv/config';
 import express from 'express';
 import healthRoutes from './src/routes/health.routes.js';
-import categoriesRoutes from './src/routes/categories.routes.js'
+import categoriesRoutes from './src/routes/categories.routes.js';
+import transactionsRoutes from './src/routes/trasactions.routes.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -12,6 +13,7 @@ app.use(express.json());
 // Mount routes
 app.use('/', healthRoutes);
 app.use('/', categoriesRoutes);
+app.use('/', transactionsRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
