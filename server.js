@@ -5,6 +5,7 @@ import categoriesRoutes from './src/routes/categories.routes.js';
 import transactionsRoutes from './src/routes/trasactions.routes.js';
 import installmentRoutes from './src/routes/installments.routes.js';
 import debtGroupsRoutes from './src/routes/debt-groups.routes.js';
+import debtPaymentsRoutes from './src/routes/debt-payments.routes.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -18,6 +19,7 @@ app.use('/', categoriesRoutes);
 app.use('/', transactionsRoutes);
 app.use('/', installmentRoutes);
 app.use('/', debtGroupsRoutes);
+app.use('/', debtPaymentsRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
