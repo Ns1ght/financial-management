@@ -30,3 +30,41 @@ export const getDebtGroupById = async (id) => {
     };
 };
 
+export const createDebtGroup = async ({ name, monthly_payment_amount, category_id, sub_debts }) => {
+    const client = await pool.connect();
+
+    try {
+        await client.query('BEGIN');
+
+        // 1. Insert the parent debt group
+        const groupResult = await client.query(
+            `INSERT INTO debt_groups (name, monthly_payment_amount, category_id)
+            VALUES ($1, $2, $3)
+            RETURNING *`,
+            [name, monthly_payment_amount, category_id]
+        );
+        const group = groupResult.rows[0];
+
+        // 2. Insert each sub-debt, linked to the new group
+        const createdSubDebts = [];
+        for (const debt of sub_debts) {
+            const result = await client.query(
+                `INSERT INTO sub_debts (debt_group_id, name, original_amount, remaining_amount)
+                VALUES ($1, $2, $3, $3)
+                RETURNING *`,
+                [group.id, debt.name, debt.original_amount]
+            );
+            createdSubDebts.push(result.rows[0]);
+        }
+
+        await client.query('COMMIT');
+
+        return { ...group, sub_debts: createdSubDebts };
+    } catch(err) {
+        await client.query('ROLLBACK');
+        throw err;
+    } finally {
+        client.release();
+    }
+}
+
