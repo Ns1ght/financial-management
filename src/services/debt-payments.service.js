@@ -1,6 +1,7 @@
 import pool from '../config/db.js';
 import { calculateOverflowAllocation } from './overflow.algorithm.js';
 import { getActiveSubDebtsByGroupId } from './sub-debts.service.js';
+import { NotFoundError, ConflictError } from '../errors/AppError.js';
 
 export const processDebtPayment = async ({ debt_group_id, payment_date }) => {
   const client = await pool.connect();
@@ -14,7 +15,7 @@ export const processDebtPayment = async ({ debt_group_id, payment_date }) => {
       [debt_group_id]
     );
     if (groupResult.rows.length === 0) {
-      throw new Error(`Debt group ${debt_group_id} not found`);
+      throw new NotFoundError(`Debt group ${debt_group_id} not found`);
     }
     const debtGroup = groupResult.rows[0];
 
@@ -27,7 +28,7 @@ export const processDebtPayment = async ({ debt_group_id, payment_date }) => {
     }));
 
     if (activeSubDebts.length === 0) {
-      throw new Error(`No active sub-debts remaining for debt group ${debt_group_id}`);
+      throw new ConflictError(`No active sub-debts remaining for debt group ${debt_group_id}`);
     }
 
     // 3. Run the pure algorithm

@@ -1,34 +1,27 @@
 import { getAllCategories, createCategory } from '../services/categories.service.js';
 import { createCategorySchema } from '../validators/category.validator.js';
+import { asyncHandler } from '../middleware/asyncHandler.js';
+import { ValidationError } from '../errors/AppError.js';
+import { parse } from 'dotenv';
 
-export const listCategories = async (req, res) => {
-    try {
-        const categories = await getAllCategories();
-        res.status(200).json(categories);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'Failed to fetch categories' });
-    }
-};
+export const listCategories = asyncHandler(async (req, res) => {
+    const categories = await getAllCategories();
+    res.status(200).json(categories);
+});
 
-export const addCategory = async (req, res) => {
+export const addCategory = asyncHandler(async (req, res) => {
     const parseResult = createCategorySchema.safeParse(req.body);
 
     if (!parseResult.success) {
-        return res.status(400).json({
-            error: 'Validation failed',
-            details: parseResult.error.issues.map(issue => ({
+        throw new ValidationError(
+            'Validation failed',
+            parseResult.error.issues.map(issue => ({
                 field: issue.path.join('.'),
                 message: issue.message,
-            })),
-        });
+            }))
+        );
     }
 
-    try {
-        const category = await createCategory(parseResult.data);
-        res.status(201).json(category);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'Failed to create category' });
-    }
-};
+    const category = await createCategory(parseResult.data);
+    res.status(201).json(category);
+});
