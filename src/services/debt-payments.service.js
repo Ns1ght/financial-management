@@ -1,5 +1,5 @@
 import pool from '../config/db.js';
-import { calculateOverflowAllocation } from './overflow.algorithm.js';
+import { calculateOverflowAllocation } from './overflow-algorithm.js';
 import { getActiveSubDebtsByGroupId } from './sub-debts.service.js';
 import { NotFoundError, ConflictError } from '../errors/AppError.js';
 
