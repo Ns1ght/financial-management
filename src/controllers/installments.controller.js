@@ -1,7 +1,12 @@
-import { createInstallmentPurchase } from '../services/installments.service.js';
+import { createInstallmentPurchase, getAllInstallmentPurchases } from '../services/installments.service.js';
 import { createInstallmentSchema } from '../validators/installment.validator.js';
 import { asyncHandler } from '../middleware/asyncHandler.js';
 import { ValidationError } from '../errors/AppError.js';
+
+export const listInstallmentPurchases = asyncHandler(async (req, res) => {
+    const purchases = await getAllInstallmentPurchases();
+    res.status(200).json(purchases);
+})
 
 export const addInstallmentPurchase = asyncHandler(async (req, res) => {
     const parseResult = createInstallmentSchema.safeParse(req.body);

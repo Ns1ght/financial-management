@@ -61,3 +61,22 @@ export const createInstallmentPurchase = async ({
         client.release();
     }
 };
+
+export const getAllInstallmentPurchases = async () => {
+    const result = await pool.query(
+        `SELECT 
+            ip. id,
+            ip.description,
+            ip.total_amount,
+            ip.installment_count,
+            ip.installment_amount,
+            ip.first_due_date,
+            ip.category_id,
+            c.name AS category_name,
+            ip.created_at
+        FROM installment_purchases ip
+        JOIN categories c ON ip.category_id = c.id
+        ORDER BY ip.created_at DESC`
+    );
+    return result.rows;
+};
