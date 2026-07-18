@@ -12,6 +12,11 @@ export const errorHandler = (err, req, res, next) => {
 
     // Postgres FK violation
     if (err.code === '23503') {
+        if (req.method === 'DELETE') {
+            return res.status(409).json({
+                error: 'Cannot delete: this resource is still referenced by other records',
+            });
+        }
         return res.status(400).json({ error: 'Referenced resource does not exist' });
     }
 
