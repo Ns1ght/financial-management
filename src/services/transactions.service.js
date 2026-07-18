@@ -1,21 +1,53 @@
 import { id } from "zod/locales";
 import pool from "../config/db.js";
 
-export const getAllTransactions = async () => {
-    const result = await pool.query(
-        `SELECT
-            t.id,
-            t.description,
-            t.amount,
-            t.type,
-            t.date,
-            t.category_id,
-            c.name AS category_name
-        FROM transactions t
-        JOIN categories c ON t.category_id = c.id
-        ORDER BY t.date DESC`
-    ); 
-    return result.rows;
+export const getAllTransactions = async (filters = {}) => {
+  const { category_id, type, start_date, end_date, limit = 50, offset = 0 } = filters;
+
+  const conditions = [];
+  const values = [];
+
+  if (category_id) {
+    values.push(category_id);
+    conditions.push(`t.category_id = $${values.length}`);
+  }
+
+  if (type) {
+    values.push(type);
+    conditions.push(`t.type = $${values.length}`);
+  }
+
+  if (start_date) {
+    values.push(start_date);
+    conditions.push(`t.date >= $${values.length}`);
+  }
+
+  if (end_date) {
+    values.push(end_date);
+    conditions.push(`t.date <= $${values.length}`);
+  }
+
+  const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+
+  values.push(limit);
+  const limitParam = `$${values.length}`;
+
+  values.push(offset);
+  const offsetParam = `$${values.length}`;
+
+  const query = `
+    SELECT
+      t.id, t.description, t.amount, t.type, t.date, t.category_id,
+      c.name AS category_name
+    FROM transactions t
+    JOIN categories c ON t.category_id = c.id
+    ${whereClause}
+    ORDER BY t.date DESC
+    LIMIT ${limitParam} OFFSET ${offsetParam}
+  `;
+
+  const result = await pool.query(query, values);
+  return result.rows;
 };
 
 export const createTransaction = async ({ description, amount, type, date, category_id }) => {

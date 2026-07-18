@@ -1,11 +1,23 @@
 import { getAllTransactions, createTransaction, getTransactionById, updateTransaction,deleteTransaction } from '../services/transactions.service.js';
-import { createTransactionSchema, updateTransactionSchema } from '../validators/transaction.validator.js';
+import { createTransactionSchema, updateTransactionSchema, transactionFiltersSchema } from '../validators/transaction.validator.js';
 import { asyncHandler } from '../middleware/asyncHandler.js';
 import { ValidationError, NotFoundError, ConflictError } from '../errors/AppError.js';
 
 export const listTransactions = asyncHandler(async (req, res) => {
-    const transactions = await getAllTransactions();
-    res.status(200).json(transactions);
+  const parseResult = transactionFiltersSchema.safeParse(req.query);
+
+  if (!parseResult.success) {
+    throw new ValidationError(
+      'Invalid query parameters',
+      parseResult.error.issues.map(issue => ({
+        field: issue.path.join('.'),
+        message: issue.message,
+      }))
+    );
+  }
+
+  const transactions = await getAllTransactions(parseResult.data);
+  res.status(200).json(transactions);
 });
 
 export const addTransaction = asyncHandler(async (req, res)  => {
