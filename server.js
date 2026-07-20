@@ -7,6 +7,7 @@ import transactionsRoutes from './src/routes/trasactions.routes.js';
 import installmentRoutes from './src/routes/installments.routes.js';
 import debtGroupsRoutes from './src/routes/debt-groups.routes.js';
 import debtPaymentsRoutes from './src/routes/debt-payments.routes.js';
+import summaryRoutes from './src/routes/summary.routes.js'; 
 import { errorHandler } from './src/middleware/errorHandler.js';
 
 const app = express();
@@ -21,6 +22,7 @@ app.use('/', transactionsRoutes);
 app.use('/', installmentRoutes);
 app.use('/', debtGroupsRoutes);
 app.use('/', debtPaymentsRoutes);
+app.use('/', summaryRoutes)
 
 app.use(errorHandler);
 
