@@ -8,7 +8,7 @@ function RecentTransactions() {
   const [error, setError] = useState(null)
 
   useEffect(() => {
-    fetch(`${API_URL}/transactions?limit=5`)
+    fetch(`${API_URL}/transactions?limit=5`, {cache: 'no-store' })
       .then((res) => {
         if (!res.ok) throw new Error(`Request failed with status ${res.status}`)
         return res.json()

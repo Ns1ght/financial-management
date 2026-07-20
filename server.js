@@ -16,6 +16,11 @@ const PORT = process.env.PORT || 3000;
 app.use(cors())
 app.use(express.json());
 
+app.use((req, res, next) => {
+  res.set('Cache-control', 'no-store');
+  next();
+});
+
 app.use('/', healthRoutes);
 app.use('/', categoriesRoutes);
 app.use('/', transactionsRoutes);

@@ -42,7 +42,7 @@ export const getAllTransactions = async (filters = {}) => {
     FROM transactions t
     JOIN categories c ON t.category_id = c.id
     ${whereClause}
-    ORDER BY t.date DESC
+    ORDER BY t.created_at DESC
     LIMIT ${limitParam} OFFSET ${offsetParam}
   `;
 
